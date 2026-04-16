@@ -1,0 +1,48 @@
+.route-error {
+	min-height: 70vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	gap: 12px;
+	padding: 24px;
+}
+
+.route-error-title {
+	margin: 0;
+	font-size: clamp(1.8rem, 3vw, 2.6rem);
+	color: #e50914;
+}
+
+.route-error-message {
+	margin: 0;
+	color: #f5f5f5;
+	font-size: 1rem;
+}
+
+.route-error-actions {
+	display: flex;
+	gap: 10px;
+	margin-top: 10px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.route-error-button {
+	border: none;
+	background: #e50914;
+	color: #ffffff;
+	padding: 10px 16px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.route-error-button:hover {
+	filter: brightness(1.05);
+}
+
+.route-error-button-secondary {
+	background: #3a3a3a;
+}

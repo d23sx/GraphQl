@@ -17,7 +17,26 @@ const isAuthenticated = () => Boolean(localStorage.getItem("jwt"));
 
 let data;
 
-const redirectToLogin = (message) => {
+const clearAuthState = () => {
+    localStorage.removeItem("jwt");
+    sessionStorage.removeItem(HOME_TRANSITION_KEY);
+};
+
+const isAuthError = (error) => {
+    const message = (error?.message || "").toLowerCase();
+    return (
+        message.includes("jwtexpired") ||
+        message.includes("could not verify jwt") ||
+        message.includes("missing authentication token") ||
+        message.includes("invalid token")
+    );
+};
+
+const redirectToLogin = (message, { clearAuth = false } = {}) => {
+    if (clearAuth) {
+        clearAuthState();
+    }
+
     if (message) {
         sessionStorage.setItem("authMessage", message);
     } else {
@@ -37,7 +56,7 @@ const router = createRouter({
             }),
         "/home": async () => {
             if (!isAuthenticated()) {
-                redirectToLogin("Session expired. Please sign in again.");
+                redirectToLogin("Session expired. Please sign in again.", { clearAuth: true });
                 return;
             }
 
@@ -47,6 +66,12 @@ const router = createRouter({
                 initializeButtonAnimation(appRoot);
             } catch (err) {
                 console.error("Failed to fetch GraphQL data:", err);
+
+                if (isAuthError(err)) {
+                    redirectToLogin("Session expired. Please sign in again.", { clearAuth: true });
+                    return;
+                }
+
                 renderError({
                     title: "Unable to load your dashboard",
                     message: err?.message || "Failed to fetch GraphQL data.",
@@ -58,16 +83,17 @@ const router = createRouter({
                         {
                             label: "Back To Login",
                             className: "route-error-button route-error-button-secondary",
-                            onClick: () => redirectToLogin("Please sign in and try again."),
+                            onClick: () =>
+                                redirectToLogin("Please sign in and try again.", {
+                                    clearAuth: true,
+                                }),
                         },
                     ],
                 });
             }
         },
         "/logout": () => {
-            localStorage.removeItem("jwt");
-            sessionStorage.removeItem(HOME_TRANSITION_KEY);
-            redirectToLogin("Signed out successfully.");
+            redirectToLogin("Signed out successfully.", { clearAuth: true });
         }
     },
     defaultRoute: isAuthenticated() ? "/home" : "/",

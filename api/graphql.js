@@ -1,3 +1,29 @@
+const HOME_TRANSITION_KEY = 'postLoginTransition';
+const AUTH_MESSAGE_KEY = 'authMessage';
+
+function isAuthErrorMessage(message = '') {
+    const normalized = String(message).toLowerCase();
+    return (
+        normalized.includes('jwtexpired') ||
+        normalized.includes('could not verify jwt') ||
+        normalized.includes('missing authentication token') ||
+        normalized.includes('invalid token') ||
+        normalized.includes('authentication token')
+    );
+}
+
+function redirectToLoginAfterAuthFailure(
+    message = 'Session expired. Please sign in again.',
+) {
+    localStorage.removeItem('jwt');
+    sessionStorage.removeItem(HOME_TRANSITION_KEY);
+    sessionStorage.setItem(AUTH_MESSAGE_KEY, message);
+
+    if (window.location.pathname !== '/') {
+        window.location.replace('/');
+    }
+}
+
 export async function fetchUserGraphql() {
     const auth = localStorage.getItem('jwt');
 
@@ -86,15 +112,22 @@ async function executeGraphqlRequest(auth, query, variables = {}) {
         body: JSON.stringify({ query, variables }),
     });
 
-    const payload = await response.json();
+    const payload = await response.json().catch(() => null);
+    const details = payload?.errors?.[0]?.message || response.statusText || '';
 
     if (!response.ok) {
-        const details = payload?.errors?.[0]?.message || response.statusText;
+        if (isAuthErrorMessage(details)) {
+            redirectToLoginAfterAuthFailure();
+        }
         throw new Error('Query failed: ' + details);
     }
 
     if (payload?.errors?.length) {
-        throw new Error(payload.errors[0]?.message || 'GraphQL error');
+        const graphQlError = payload.errors[0]?.message || 'GraphQL error';
+        if (isAuthErrorMessage(graphQlError)) {
+            redirectToLoginAfterAuthFailure();
+        }
+        throw new Error(graphQlError);
     }
 
     return payload?.data || {};

@@ -8,27 +8,6 @@ import { initializeButtonAnimation } from "../pages/components/netflixAnimation.
 
 const HOME_TRANSITION_KEY = "postLoginTransition";
 
-const sampleData = {
-    username: "dshowait",
-    userId: "6353",
-    rank: "Apprentice Developer",
-    email: "dana.showaiter23@gmail.com",
-    level: 12,
-    currentXp: 45200,
-    xpToNextLevel: 50000,
-    totalXp: 245200,
-    auditsDone: 42,
-    auditsReceived: 38,
-    xpHistory: [
-        { month: "Jan", xp: 12000 },
-        { month: "Feb", xp: 18500 },
-        { month: "Mar", xp: 24000 },
-        { month: "Apr", xp: 31200 },
-        { month: "May", xp: 38900 },
-        { month: "Jun", xp: 45200 }
-    ]
-};
-
 function getRankName(level=0) {
     for (let i = ranksDefinitions.length - 1; i >= 0; i--) {
         if (level >= ranksDefinitions[i].level) {
@@ -60,23 +39,30 @@ function remainingXp(currentLevel, xp) {
     return target - xp;
 }
 
-export function buildHomePage(data = sampleData) {
+export function buildHomePage(data = {}) {
     const root = document.createDocumentFragment();
     const rankName = getRankName(data.transactions[0].amount || 0);
     const curtain = document.createElement("div");
     curtain.id = "handoff-curtain";
     curtain.setAttribute("aria-hidden", "true");
 
-    const bgGradient = document.createElement("div");
-    bgGradient.className = "bg-gradient";
-
-    const bgGrid = document.createElement("div");
-    bgGrid.className = "bg-grid";
-
     const container = document.createElement("div");
     container.className = "container";
 
+    const gradientImg = document.createElement("img")
+    gradientImg.src = "../assets/img/gradient.png"
+    gradientImg.alt = "gradient img"
+    gradientImg.className = "gradient-img"
+
+    const gradientDiv = document.createElement("div");
+    gradientDiv.className = "gradient-div"
+
+    const robotViewer = document.createElement("spline-viewer")
+    robotViewer.setAttribute("url", "https://prod.spline.design/s2xbWh6LExcmWY8b/scene.splinecode")
+    robotViewer.className = "robot-3d animate-in animate-delay-1"
+
     const header = buildHeader();
+
     const main = document.createElement("main");
 
     const heroSection = buildHeroSection(`${data.public.firstName} ${data.public.lastName}`, data.id, rankName, data.email);
@@ -84,8 +70,8 @@ export function buildHomePage(data = sampleData) {
     const graphStatsSection = buildGraphStatsSection(data);
 
     main.append(heroSection, statsSection, graphStatsSection);
-    container.append(header, main);
-    root.append(curtain, bgGradient, bgGrid, container);
+    container.append(header, main, robotViewer);
+    root.append(curtain, gradientImg, gradientDiv, container);
 
     return root;
 }
@@ -179,16 +165,7 @@ function buildHeroSection(username, userId, userRank, userEmail) {
 
     content.append(badge, title, rank, email);
 
-    const robotViewer = document.createElement("div");
-    robotViewer.className = "hero-robot animate-in animate-delay-1";
-    robotViewer.innerHTML = `
-        <div class="robot-glow"></div>
-        <spline-viewer class="robot-3d"
-            url="https://prod.spline.design/s2xbWh6LExcmWY8b/scene.splinecode"
-        ></spline-viewer>
-    `;
-
-    wrapper.append(content, robotViewer);
+    wrapper.append(content);
     section.appendChild(wrapper);
 
     return section;

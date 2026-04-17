@@ -1,35 +1,35 @@
-/* Layout */
-.container {
-    max-width: 1400px;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding: 0 2rem;
+main {
     position: relative;
+    z-index: 1;
+    padding: 2rem 0 4rem;
+    overflow: hidden;
 }
 
-/* Background Effects */
-.bg-gradient {
-    position: fixed;
-    top: -20%;
-    right: -10%;
-    width: 70%;
-    height: 80%;
-    background: radial-gradient(ellipse at center, var(--glow-primary-soft) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(60px);
+.gradient-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: .5;
+    z-index: -1;
+}
+.gradient-div {
+    height: 0;
+    width: 30rem;
+    position: absolute;
+    top: 20%;
+    right: 0;
+    box-shadow: 0 0 700px 15px white;
+    rotate: -30deg;
+    z-index: -1;
 }
 
-.bg-grid {
-    position: fixed;
-    inset: 0;
-    background-image: 
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 80px 80px;
-    opacity: 0.02;
-    pointer-events: none;
-    z-index: 0;
+.container {
+    min-height: 100dvh;
+    padding: 0 2rem;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Header */
@@ -37,17 +37,17 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: linear-gradient(180deg, rgba(8, 8, 8, 0.95) 0%, rgba(8, 8, 8, 0.8) 100%);
+    background: linear-gradient(62deg, rgb(86 5 5 / 25%) 10%, rgba(8, 8, 8, 0.8) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgb(64 40 40 / 50%);
 }
 
 .nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 0;
+    padding: 1.25rem;
 }
 
 .nav-brand {
@@ -85,13 +85,6 @@ header {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-}
-
-/* Main Content */
-main {
-    position: relative;
-    z-index: 1;
-    padding: 2rem 0 4rem;
 }
 
 /* Hero Section */
@@ -188,36 +181,20 @@ main {
     opacity: 0.6;
 }
 
-/* Hero Robot */
-.hero-robot {
+.root-container {
     position: relative;
-    height: 420px;
-    border-radius: 24px;
     overflow: hidden;
-    background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
-    border: 1px solid var(--border);
 }
 
-.hero-robot .robot-glow {
+/* Hero Robot */
+.robot-3d {
+    display: block;
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 70%;
-    height: 70%;
-    background: radial-gradient(circle, var(--glow-primary) 0%, transparent 60%);
-    opacity: 0.5;
+    top: 2%;
+    right: -20%;
+    height: clamp(300px, 60vw, 900px);
+    transform-origin: top right;
     pointer-events: none;
-    z-index: 0;
-}
-
-.hero-robot .robot-3d {
-    width: 100%;
-    height: 100%;
-    scale: 1.5;
-    margin-top: 60px;
-    position: relative;
-    z-index: 1;
 }
 
 /* Stats Grid */
@@ -554,6 +531,18 @@ main {
 }
 
 /* Responsive */
+@media (max-width: 1580px) {
+    .robot-3d {
+        top: -2%;
+    }
+}
+
+@media (max-width: 1180px) {
+    .robot-3d {
+        top: 2%;
+    }
+}
+
 @media (max-width: 1024px) {
     .stats-grid {
         grid-template-columns: 1fr;
@@ -575,12 +564,7 @@ main {
         text-align: center;
         max-width: 100%;
     }
-    
-    .hero-robot {
-        order: 1;
-        height: 320px;
-    }
-    
+
     .user-badge {
         margin-left: auto;
         margin-right: auto;
@@ -607,8 +591,10 @@ main {
         font-size: 2.25rem;
     }
     .stats-grid.col-2 {
-    grid-template-columns: repeat(1, 1fr);
-
+        grid-template-columns: repeat(1, 1fr);
+    }
+    .robot-3d {
+        display: none;
     }
 }
 
@@ -628,9 +614,25 @@ main {
     animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+.robot-3d.animate-in {
+    opacity: 0;
+    animation: robotFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .animate-delay-1 { animation-delay: 0.15s; opacity: 0; }
 .animate-delay-2 { animation-delay: 0.25s; opacity: 0; }
 .animate-delay-3 { animation-delay: 0.35s; opacity: 0; }
+
+@keyframes robotFadeIn {
+    from {
+        opacity: 0;
+        filter: blur(8px);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
 
 /* Transition */
 #handoff-curtain {

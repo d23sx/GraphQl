@@ -14,11 +14,11 @@ main {
 }
 .gradient-div {
     height: 0;
-    width: 30rem;
+    width: 20rem;
     position: absolute;
     top: 20%;
     right: 0;
-    box-shadow: 0 0 700px 15px white;
+    box-shadow: 0 0px 90px 15px rgba(255, 255, 255, 0.494);
     rotate: -30deg;
     z-index: -1;
 }
@@ -192,9 +192,8 @@ header {
     position: absolute;
     top: 2%;
     right: -20%;
-    height: clamp(300px, 60vw, 900px);
+    height: clamp(300px, 70vw, 800px);
     transform-origin: top right;
-    pointer-events: none;
 }
 
 /* Stats Grid */
@@ -533,7 +532,7 @@ header {
 /* Responsive */
 @media (max-width: 1580px) {
     .robot-3d {
-        top: -2%;
+        top: 2%;
     }
 }
 
@@ -687,7 +686,6 @@ svg {
     font-size: 12px;
     font-family: "Doto", sans-serif; 
     fill: var(--text); 
-    /* font-weight: bold; */
     letter-spacing: 0.1em;
 }
 .axis-line{

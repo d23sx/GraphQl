@@ -222,7 +222,7 @@ export const resolvers = {
     },
 };
 
-const TRANSACTION_COLUMNS = new Set([
+const TRANSACTION_COLUMNS = Object.freeze([
     "id",
     "type",
     "amount",
@@ -232,17 +232,9 @@ const TRANSACTION_COLUMNS = new Set([
     "userId",
     "objectId",
 ]);
+const TRANSACTION_COLUMNS_SET = new Set(TRANSACTION_COLUMNS);
 const ORDER_DIRECTIONS = new Set(["asc", "desc"]);
-const DEFAULT_TRANSACTION_FIELDS = [
-    "id",
-    "type",
-    "amount",
-    "createdAt",
-    "path",
-    "eventId",
-    "userId",
-    "objectId",
-];
+const DEFAULT_TRANSACTION_FIELDS = TRANSACTION_COLUMNS;
 const DEFAULT_TRANSACTION_ORDER = [{ createdAt: "asc" }];
 const DEFAULT_USER_TRANSACTION_ORDER = [{ amount: "desc" }];
 const DEFAULT_SKILLS_ORDER = [{ type: "desc" }, { amount: "desc" }];
@@ -479,7 +471,8 @@ function buildOrderByInput(orderBy = []) {
             Object.entries(item)
                 .filter(
                     ([key, direction]) =>
-                        TRANSACTION_COLUMNS.has(key) && ORDER_DIRECTIONS.has(direction),
+                        TRANSACTION_COLUMNS_SET.has(key) &&
+                        ORDER_DIRECTIONS.has(direction),
                 )
                 .map(([key, direction]) => `${key}: ${direction}`)
                 .join(", "),
@@ -493,7 +486,7 @@ function buildOrderByInput(orderBy = []) {
 function buildDistinctOnInput(distinctOn = []) {
     const distinctColumns = (
         Array.isArray(distinctOn) ? distinctOn : [distinctOn]
-    ).filter((column) => TRANSACTION_COLUMNS.has(column));
+    ).filter((column) => TRANSACTION_COLUMNS_SET.has(column));
 
     return distinctColumns.length ? `[${distinctColumns.join(", ")}]` : "";
 }

@@ -11,9 +11,24 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = __dirname;
+const ASSETS_DIR = path.join(ROOT_DIR, "assets");
 
 app.use(express.json());
-app.use(express.static(ROOT_DIR));
+app.use(
+    "/assets",
+    express.static(ASSETS_DIR, {
+        setHeaders: (res, filePath) => {
+            if (filePath.endsWith(".css")) {
+                res.type("text/css; charset=UTF-8");
+            }
+            if (filePath.endsWith(".js")) {
+                res.type("application/javascript; charset=UTF-8");
+            }
+        },
+    })
+);
+
+app.use(express.static(ROOT_DIR, { index: false }));
 
 app.get("/health", (_req, res) => {
     res.status(200).json({ ok: true });

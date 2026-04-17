@@ -38,8 +38,9 @@ export function buildBarChartCard(data) {
 }
 
 function buildLineChart(data = []) {
-    const dataLen = data.length;
-    const maxVal = Math.max(...data.map((d) => d.value), 1);
+    const dataLen = data.length + 1;
+    const getMaxVal = Math.max(...data.map((d) => d.value), 1) + 1;
+    const maxVal = getMaxVal * 2
     const width = 760;
     const height = 700;
     const padding = { top: 24, right: 24, bottom: 156, left: 60 };

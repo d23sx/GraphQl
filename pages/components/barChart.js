@@ -2,8 +2,32 @@ import {  attachCardPointerAnimation } from "../../index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+function parseDuplicateData(data = []) {
+    if (!Array.isArray(data)) return [];
+
+    const bestByLabel = new Map();
+
+    data.forEach((entry) => {
+        const current = bestByLabel.get(entry.label);
+        if (!current) {
+            bestByLabel.set(entry.label, entry);
+            return;
+        }
+
+        const hasHigherValue = entry.rawValue > current.rawValue;
+        const sameValueButMoreRecent =
+            entry.rawValue === current.rawValue && entry.timestamp > current.timestamp;
+
+        if (hasHigherValue || sameValueButMoreRecent) {
+            bestByLabel.set(entry.label, entry);
+        }
+    });
+
+    return Array.from(bestByLabel.values()).sort((a, b) => a.timestamp - b.timestamp);
+}
 export function buildBarChartCard(data) {
-    const parseData = parseChartLabel(data).slice(-11);
+    const parseData = parseChartLabel(data);
+    const duplCheck = parseDuplicateData(parseData).slice(-11)
 
     const card = document.createElement("div");
     card.className = "stat-card stat-card-lg animate-in animate-delay-1";
@@ -29,7 +53,7 @@ export function buildBarChartCard(data) {
     chartContainer.style.width = "min(700px, 100%)";
     chartContainer.style.aspectRatio = "16 / 13";
 
-    const lineChart = buildLineChart(parseData);
+    const lineChart = buildLineChart(duplCheck);
 
     chartContainer.appendChild(lineChart);
     content.append(header, label, chartContainer);
@@ -142,7 +166,7 @@ function buildLineChart(data = []) {
         crl.setAttribute("stroke-width", "2");
 
         const title = document.createElementNS(SVG_NS, "title");
-        title.textContent = `${pt.label}\n${pt.date}\n${Math.round(pt.value)} XP`;
+        title.textContent = `${pt.label}\n${pt.date}\nDisplayed: ${Math.round(pt.value)} XP\nRaw: ${Math.round(pt.rawValue)} XP`;
         crl.append(title);
 
         crl.addEventListener("mouseenter", () => {
@@ -150,6 +174,7 @@ function buildLineChart(data = []) {
                 x: pointX,
                 y: pointY,
                 xp: Math.round(pt.value),
+                rawXp: Math.round(pt.rawValue),
                 date: pt.date,
                 chartWidth: width,
                 chartHeight: height,
@@ -162,6 +187,7 @@ function buildLineChart(data = []) {
                 x: pointX,
                 y: pointY,
                 xp: Math.round(pt.value),
+                rawXp: Math.round(pt.rawValue),
                 date: pt.date,
                 chartWidth: width,
                 chartHeight: height,
@@ -234,18 +260,24 @@ function createChartTooltip(svg) {
     dateText.setAttribute("font-size", "12");
     dateText.setAttribute("fill", "var(--text-muted, #9ca3af)");
 
-    group.append(background, xpText, dateText);
+    const rawText = document.createElementNS(SVG_NS, "text");
+    rawText.setAttribute("font-size", "12");
+    rawText.setAttribute("fill", "#fca5a5");
+    rawText.setAttribute("opacity", "0");
+
+    group.append(background, xpText, dateText, rawText);
     svg.append(group);
 
-    return { group, background, xpText, dateText };
+    return { group, background, xpText, dateText, rawText };
 }
 
-function updateChartTooltip(tooltip, { x, y, xp, date, chartWidth, chartHeight }) {
+function updateChartTooltip(tooltip, { x, y, xp, rawXp, date, chartWidth, chartHeight }) {
     const padX = 12;
     const padY = 10;
     const lineGap = 18;
     const tooltipWidth = 150;
-    const tooltipHeight = 54;
+    const showRawValue = rawXp < 0;
+    const tooltipHeight = showRawValue ? 72 : 54;
 
     let tooltipX = x + 12;
     let tooltipY = y - tooltipHeight - 12;
@@ -274,6 +306,11 @@ function updateChartTooltip(tooltip, { x, y, xp, date, chartWidth, chartHeight }
     tooltip.dateText.setAttribute("x", String(tooltipX + padX));
     tooltip.dateText.setAttribute("y", String(tooltipY + padY + 12 + lineGap));
     tooltip.dateText.textContent = date || "-";
+
+    tooltip.rawText.setAttribute("x", String(tooltipX + padX));
+    tooltip.rawText.setAttribute("y", String(tooltipY + padY + 12 + lineGap * 2));
+    tooltip.rawText.textContent = showRawValue ? `Raw: ${rawXp} XP` : "";
+    tooltip.rawText.setAttribute("opacity", showRawValue ? "1" : "0");
 }
 
 function buildLineChartIcon() {
@@ -304,10 +341,12 @@ function parseChartLabel(data = []) {
         .map((val) => {
             const rawDate = String(val?.createdAt || "");
             const timestamp = Date.parse(rawDate);
+            const rawValue = Number(val?.amount) || 0;
 
             return {
                 label: normalizePathLabel(val?.path),
-                value: Number(val?.amount) || 0,
+                value: Math.max(rawValue, 0),
+                rawValue,
                 date: rawDate.split("T")[0],
                 timestamp: Number.isNaN(timestamp) ? 0 : timestamp,
             };

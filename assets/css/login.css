@@ -155,3 +155,15 @@
 	width: 100% !important;
 	align-items: center;
 }
+
+@media (max-width: 420px) {
+	.login-container {
+		max-width: 350px;
+	}
+}
+
+@media (max-width: 350px) {
+	.login-container {
+		max-width: 300px;
+	}
+}

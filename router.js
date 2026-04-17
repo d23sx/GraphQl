@@ -1,4 +1,4 @@
-export function createRouter({ routes, onRouteChange, onNotFound, defaultRoute = "/login" }) {
+export function createRouter({ routes, onRouteChange, onNotFound, defaultRoute = "/" }) {
 	const normalizePath = (path) => {
 		if (!path) {
 			return defaultRoute;

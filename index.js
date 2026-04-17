@@ -23,12 +23,12 @@ const redirectToLogin = (message) => {
     } else {
         sessionStorage.removeItem("authMessage");
     }
-    window.location.replace("/login");
+    window.location.replace("/");
 };
 
 const router = createRouter({
     routes: {
-        "/login": () =>
+        "/": () =>
             renderLogin({
                 appRoot,
                 buildNetflixIntro,
@@ -70,7 +70,7 @@ const router = createRouter({
             redirectToLogin("Signed out successfully.");
         }
     },
-    defaultRoute: isAuthenticated() ? "/home" : "/login",
+    defaultRoute: isAuthenticated() ? "/home" : "/",
     onRouteChange: (routeHandler) => {
         document.body.classList.remove("with-handoff", "ready");
         routeHandler();

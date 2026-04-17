@@ -38,7 +38,7 @@ export function renderNotFound(path, navigate) {
         title: "Page Not Found",
         message: `No route matches '${path}'.`,
         actions: [
-            { label: "Go To Login", onClick: () => navigate("/login") },
+            { label: "Go To Login", onClick: () => navigate("/") },
             { label: "Go To Home", className: "route-error-button route-error-button-secondary", onClick: () => navigate("/home") },
         ],
     });
